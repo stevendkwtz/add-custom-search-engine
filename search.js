@@ -19,7 +19,10 @@ function htmlEntityEncode(before) {
 
   for (let char of before) {
     let codePoint = char.codePointAt(0);
-    if ((codePoint >= 65 && codePoint < 91) || (codePoint >= 97 && codePoint < 123)) {
+    if (
+      (codePoint >= 65 && codePoint < 91) ||
+      (codePoint >= 97 && codePoint < 123)
+    ) {
       after += char;
     } else {
       after += `&#${codePoint};`;
@@ -41,14 +44,21 @@ function createXMLString() {
   // name.innerText = data.get("name");
 
   // Search URL
-  const url = doc.querySelector("Url[type=\"text/html\"]");
-  url.setAttribute("template", data.get("url").replace(/%s/g, "{searchTerms}"));
+  const url = doc.querySelector('Url[type="text/html"]');
+  url.setAttribute(
+    "template",
+    data.get("url").replace(/%s/g, encodeURIComponent("{searchTerms}"))
+  );
+
   if (data.get("use-post")) {
     url.setAttribute("method", "POST");
 
     const params = new URLSearchParams(data.get("post"));
     for (const [name, value] of params) {
-      const param = doc.createElementNS("http://a9.com/-/spec/opensearch/1.1/", "Param");
+      const param = doc.createElementNS(
+        "http://a9.com/-/spec/opensearch/1.1/",
+        "Param"
+      );
       param.setAttribute("name", name);
       param.setAttribute("value", value);
       url.append("\n"); // Nicer format!
@@ -69,7 +79,9 @@ function createXMLString() {
   // == Advanced ==
 
   // Suggest URL
-  const suggestUrl = doc.querySelector("Url[type=\"application/x-suggestions+json\"]");
+  const suggestUrl = doc.querySelector(
+    'Url[type="application/x-suggestions+json"]'
+  );
   if (data.get("suggest-url")) {
     suggestUrl.setAttribute("method", "GET");
     suggestUrl.setAttribute("template", data.get("suggest-url"));
@@ -96,10 +108,10 @@ function createXMLString() {
 
   // Name
   // Work around textContent not passing through HTML entities.
-  return string.replace("####REPLACE####", htmlEntityEncode(data.get("name")))
+  return string.replace("####REPLACE####", htmlEntityEncode(data.get("name")));
 }
 
-document.querySelector("form").addEventListener("submit", async event => {
+document.querySelector("form").addEventListener("submit", async (event) => {
   event.preventDefault();
 
   const string = createXMLString();
@@ -115,14 +127,16 @@ document.querySelector("form").addEventListener("submit", async event => {
         content: string,
         format: "json",
         expires: "onetime",
-        lexer: "xml"
-      })
+        lexer: "xml",
+      }),
     });
 
     let json = await response.json();
     // We need the raw XML instead of the pretty HTML view
     // Mozilla's dpaste instance is misconfigured, we have to fix the URL.
-    let url = json.url.replace("dpaste-base-url.example.org", "paste.mozilla.org") + "/raw";
+    let url =
+      json.url.replace("dpaste-base-url.example.org", "paste.mozilla.org") +
+      "/raw";
 
     let link = document.createElement("link");
     link.rel = "search";
@@ -140,19 +154,19 @@ document.querySelector("form").addEventListener("submit", async event => {
 
     document.querySelector("#main").style.display = "none";
     document.querySelector("#instructions").style.display = "block";
-  } catch(error) {
+  } catch (error) {
     alert(error);
-  };
+  }
 });
 
-document.querySelector("#close").addEventListener("click", event => {
+document.querySelector("#close").addEventListener("click", (event) => {
   event.preventDefault();
 
   document.querySelector("#main").style.display = "block";
   document.querySelector("#instructions").style.display = "none";
-})
+});
 
-document.querySelector("#show-preview").addEventListener("click", event => {
+document.querySelector("#show-preview").addEventListener("click", (event) => {
   const string = createXMLString();
 
   const code = document.querySelector("#preview");
@@ -170,7 +184,7 @@ function usePost() {
 }
 document.querySelector("#use-post").addEventListener("change", usePost);
 
-document.querySelector("#input-url").addEventListener("change", event => {
+document.querySelector("#input-url").addEventListener("change", (event) => {
   try {
     const url = new URL(event.target.value);
     const icon = document.querySelector("#input-icon");
@@ -181,17 +195,23 @@ document.querySelector("#input-url").addEventListener("change", event => {
   } catch (e) {}
 });
 
-document.querySelector("#input-file-icon").addEventListener("change", event => {
-  const reader = new FileReader();
-  reader.addEventListener("load", function () {
-    document.querySelector("#input-icon").value = reader.result;
-    loadIcon();
-  }, false);
+document
+  .querySelector("#input-file-icon")
+  .addEventListener("change", (event) => {
+    const reader = new FileReader();
+    reader.addEventListener(
+      "load",
+      function () {
+        document.querySelector("#input-icon").value = reader.result;
+        loadIcon();
+      },
+      false
+    );
 
-  if (event.target.files && event.target.files[0]) {
-    reader.readAsDataURL(event.target.files[0]);
-  }
-});
+    if (event.target.files && event.target.files[0]) {
+      reader.readAsDataURL(event.target.files[0]);
+    }
+  });
 
 function loadIcon() {
   const url = document.querySelector("#input-icon").value;
@@ -202,7 +222,7 @@ document.querySelector("#input-icon").addEventListener("change", loadIcon);
 function showAdvanced() {
   const checked = document.querySelector("#show-advanced").checked;
 
-  document.querySelectorAll(".advanced").forEach(element => {
+  document.querySelectorAll(".advanced").forEach((element) => {
     element.classList.toggle("adv-hidden", !checked);
   });
 
@@ -212,14 +232,18 @@ function showAdvanced() {
     document.querySelector("#use-post").checked = false;
   }
 }
-document.querySelector("#show-advanced").addEventListener("change", showAdvanced);
+document
+  .querySelector("#show-advanced")
+  .addEventListener("change", showAdvanced);
 
 async function checkName(event) {
   const searchEngines = await browser.search.get();
 
   for (const engine of searchEngines) {
     if (engine.name === event.target.value) {
-      event.target.setCustomValidity("Search engine with this name already exists.");
+      event.target.setCustomValidity(
+        "Search engine with this name already exists."
+      );
       event.target.reportValidity();
       event.target.preventDefault();
       return;
@@ -238,11 +262,13 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // One-click selection for convience, because we can't directly link about:preferences
-document.querySelectorAll("mark").forEach(mark => mark.addEventListener("click", event => {
-  let range = document.createRange();
-  range.selectNodeContents(event.target);
+document.querySelectorAll("mark").forEach((mark) =>
+  mark.addEventListener("click", (event) => {
+    let range = document.createRange();
+    range.selectNodeContents(event.target);
 
-  let selection = window.getSelection();
-  selection.removeAllRanges();
-  selection.addRange(range);
-}));
+    let selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+  })
+);
