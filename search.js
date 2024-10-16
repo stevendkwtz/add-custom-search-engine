@@ -39,16 +39,10 @@ function createXMLString() {
   const form = document.querySelector("form");
   const data = new FormData(form);
 
-  // // Name
-  // const name = doc.getElementsByTagName("ShortName")[0];
-  // name.innerText = data.get("name");
-
   // Search URL
   const url = doc.querySelector('Url[type="text/html"]');
-  url.setAttribute(
-    "template",
-    data.get("url").replace(/%s/g, encodeURIComponent("{searchTerms}"))
-  );
+  const searchTerms = data.get("url").replace(/%s/g, "{searchTerms}");
+  url.setAttribute("template", encodeURIComponent(searchTerms));
 
   if (data.get("use-post")) {
     url.setAttribute("method", "POST");

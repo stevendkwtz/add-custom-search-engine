@@ -1,8 +1,8 @@
 {
-  "description": "Add a custom search engine to the list of available search engines in the search bar.",
-  "manifest_version": 3,
-  "name": "Add custom search engine",
-  "version": "4.3",
+  "description": "Add a custom search engine to the list of available search engines in the search bar. Updates the existing add-custom-search-engine add on to support URL encoding search queries.",
+  "manifest_version": 2,
+  "name": "Custom Search Engine Creator",
+  "version": "1.0",
 
   "browser_action": {
     "default_icon": {
@@ -11,15 +11,14 @@
       "64": "icons/search64.png",
       "96": "icons/search96.png"
     },
-    "default_title": "Add custom search engine"
+    "default_title": "Custom Search Engines"
   },
-
   "commands": {
     "_execute_browser_action": {
       "suggested_key": {
         "default": "Ctrl+Shift+F"
       },
-      "description": "Add custom search engine"
+      "description": "Custom Search Engines"
     }
   },
 
